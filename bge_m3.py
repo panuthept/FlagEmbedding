@@ -96,13 +96,16 @@ class BGEM3FlagModel:
 
 
     @torch.no_grad()
-    def encode(self,
-               sentences: Union[List[str], str],
-               batch_size: int = 12,
-               max_length: int = 8192,
-               return_dense: bool = True,
-               return_sparse: bool = False,
-               return_colbert_vecs: bool = False) -> Dict:
+    def encode(
+        self,
+        sentences: Union[List[str], str],
+        batch_size: int = 12,
+        max_length: int = 8192,
+        return_dense: bool = True,
+        return_sparse: bool = False,
+        return_colbert_vecs: bool = False,
+        verbose: bool = False,
+    ) -> Dict:
 
         if self.num_gpus > 1:
             batch_size *= self.num_gpus
@@ -135,7 +138,7 @@ class BGEM3FlagModel:
 
         all_dense_embeddings, all_lexical_weights, all_colbert_vec = [], [], []
         for start_index in tqdm(range(0, len(sentences), batch_size), desc="Inference Embeddings",
-                                disable=len(sentences) < 256):
+                                disable=not verbose):
             sentences_batch = sentences[start_index:start_index + batch_size]
             batch_data = self.tokenizer(
                 sentences_batch,
